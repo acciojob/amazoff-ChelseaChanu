@@ -11,7 +11,7 @@ public class Order {
         //deliveryTime  = HH*60 + MM
         this.id = id;
         int hour = Integer.parseInt(deliveryTime.substring(0,2));
-        int min = Integer.parseInt(deliveryTime.substring(3,5));
+        int min = Integer.parseInt(deliveryTime.substring(3));
         int time = (hour*60)+min;
         this.deliveryTime = time;
     }

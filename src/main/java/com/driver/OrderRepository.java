@@ -11,6 +11,12 @@ public class OrderRepository {
     HashMap<String,DeliveryPartner> partnerDB = new HashMap<>();
     HashMap<String,List<String>> orderPartnerDB = new HashMap<>();
 
+    public OrderRepository(){
+        this.orderDB = new HashMap<>();
+        this.partnerDB = new HashMap<>();
+        this.orderPartnerDB = new HashMap<>();
+    }
+
     public void addOrder(Order order){
         orderDB.put(order.getId(),order);
     }
@@ -28,8 +34,8 @@ public class OrderRepository {
                 orders = orderPartnerDB.get(partnerId);
             orders.add(orderId);
             orderPartnerDB.put(partnerId,orders);
-            int count = partnerDB.get(partnerId).getNumberOfOrders();
-            partnerDB.get(partnerId).setNumberOfOrders(count+1);
+            DeliveryPartner partner = partnerDB.get(partnerId);
+            partner.setNumberOfOrders(orders.size());
         }
     }
 
@@ -74,9 +80,9 @@ public class OrderRepository {
 
         Integer countOfOrders = 0;
         //countOfOrders that are left after a particular time of a DeliveryPartner
-        int hour = Integer.parseInt(time.substring(0,2));
-        int min = Integer.parseInt(time.substring(3,5));
-        int currTime = (hour*60)+min;
+        Integer hour = Integer.parseInt(time.substring(0,2));
+        Integer min = Integer.parseInt(time.substring(3));
+        Integer currTime = (hour*60)+min;
         for(String orderId:orderPartnerDB.get(partnerId)){
             if(orderDB.get(orderId).getDeliveryTime()>currTime)
                 countOfOrders++;
@@ -91,29 +97,42 @@ public class OrderRepository {
             timeList.add(orderDB.get(orderId).getDeliveryTime());
         }
         int lastDeliveryTime = Collections.max(timeList);
-        return String.format("%d",lastDeliveryTime);
+        int hour = lastDeliveryTime/60;
+        int min = lastDeliveryTime%60;
+        String hourInStr = String.valueOf(hour);
+        String minInStr = String.valueOf(min);
+        if(hourInStr.length()==1){
+            hourInStr = String.format("0%s",hourInStr);
+        }
+        if(minInStr.length()==1){
+            minInStr = String.format("0%s",minInStr);
+        }
+        return String.format("%s:%s",hourInStr,minInStr);
     }
 
     public void deletePartnerById(String partnerId){
         //Delete the partnerId
         //And push all his assigned orders to unassigned orders.
-        orderPartnerDB.remove(partnerId);
-        partnerDB.remove(partnerId);
+        if(orderPartnerDB.containsKey(partnerId))
+            orderPartnerDB.remove(partnerId);
+        if(partnerDB.containsKey(partnerId))
+            partnerDB.remove(partnerId);
     }
 
     public void deleteOrderById(String orderId){
         //Delete an order and also
         // remove it from the assigned order of that partnerId
-        orderDB.remove(orderId);
         for(String partnerId: orderPartnerDB.keySet()){
             for(String order: orderPartnerDB.get(partnerId)){
                 if(order.equals(orderId)){
-                    if(orderPartnerDB.get(partnerId).size()==1)
-                        orderPartnerDB.remove(partnerId);
-                    else
-                        orderPartnerDB.get(partnerId).remove(orderId);
+                    orderPartnerDB.get(partnerId).remove(orderId);
+                    DeliveryPartner partner = partnerDB.get(partnerId);
+                    partner.setNumberOfOrders(orderPartnerDB.get(partnerId).size());
                 }
             }
         }
+
+        if(orderDB.containsKey(orderId))
+            orderDB.remove(orderId);
     }
 }
