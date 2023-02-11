@@ -11,15 +11,20 @@ public class Order {
         //deliveryTime  = HH*60 + MM
         this.id = id;
         int hour = Integer.parseInt(deliveryTime.substring(0,2));
-        int min = Integer.parseInt(deliveryTime.substring(3, 5));
-        this.deliveryTime = hour*60+min;
+        int min = Integer.parseInt(deliveryTime.substring(3,5));
+        int time = (hour*60)+min;
+        this.deliveryTime = time;
+    }
 
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getId() {
-        //int orderId = Integer.parseInt(id);
         return id;
     }
 
-    public int getDeliveryTime() {return deliveryTime;}
+    public int getDeliveryTime() {
+        return deliveryTime;
+    }
 }

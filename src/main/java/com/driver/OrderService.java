@@ -1,22 +1,22 @@
 package com.driver;
 
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
-   
+    
     @Autowired
     OrderRepository orderRepository;
-
+    
     public void addOrder(Order order){
         orderRepository.addOrder(order);
     }
 
-    public void addDeliveryPartner(String id){
-        orderRepository.addDeliveryPartner(id);
+    public void addPartner(String partnerId){
+        orderRepository.addPartner(partnerId);
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId){
@@ -31,7 +31,7 @@ public class OrderService {
         return orderRepository.getPartnerById(partnerId);
     }
 
-    public int getOrderCountByPartnerId(String partnerId){
+    public Integer getOrderCountByPartnerId(String partnerId){
         return orderRepository.getOrderCountByPartnerId(partnerId);
     }
 
@@ -43,11 +43,11 @@ public class OrderService {
         return orderRepository.getAllOrders();
     }
 
-    public int getCountOfUnassignedOrders(){
+    public Integer getCountOfUnassignedOrders(){
         return orderRepository.getCountOfUnassignedOrders();
     }
 
-    public int getOrdersLeftAfterGivenTimeByPartnerId(String time,String partnerId){
+    public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
         return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(time, partnerId);
     }
 
