@@ -28,6 +28,8 @@ public class OrderRepository {
                 orders = orderPartnerDB.get(partnerId);
             orders.add(orderId);
             orderPartnerDB.put(partnerId,orders);
+            int count = partnerDB.get(partnerId).getNumberOfOrders();
+            partnerDB.get(partnerId).setNumberOfOrders(count+1);
         }
     }
 
@@ -43,8 +45,7 @@ public class OrderRepository {
 
     public Integer getOrderCountByPartnerId(String partnerId){
         //orderCount should denote the orders given by a partner-id
-        Integer orderCount = orderPartnerDB.get(partnerId).size();
-        return orderCount;
+        return partnerDB.get(partnerId).getNumberOfOrders();
     }
 
     public List<String> getOrdersByPartnerId(String partnerId){
@@ -90,9 +91,7 @@ public class OrderRepository {
             timeList.add(orderDB.get(orderId).getDeliveryTime());
         }
         int lastDeliveryTime = Collections.max(timeList);
-        int hour = lastDeliveryTime/60;
-        int min = lastDeliveryTime%60;
-        return String.format("%d:%d",hour,min);
+        return String.format("%d",lastDeliveryTime);
     }
 
     public void deletePartnerById(String partnerId){
