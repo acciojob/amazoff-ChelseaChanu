@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     @Autowired
-    OrderService orderService;
+    OrderService orderService = new OrderService();
 
     @PostMapping("/add-order")
     public ResponseEntity<String> addOrder(@RequestBody Order order){
@@ -67,7 +67,6 @@ public class OrderController {
         Integer orderCount = orderService.getOrderCountByPartnerId(partnerId);
 
         //orderCount should denote the orders given by a partner-id
-
         return new ResponseEntity<>(orderCount, HttpStatus.CREATED);
     }
 

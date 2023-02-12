@@ -7,14 +7,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class OrderRepository {
     
-    HashMap<String,Order> orderDB = new HashMap<>();
-    HashMap<String,DeliveryPartner> partnerDB = new HashMap<>();
-    HashMap<String,List<String>> orderPartnerDB = new HashMap<>();
+    HashMap<String,Order> orderDB;
+    HashMap<String,DeliveryPartner> partnerDB;
+    HashMap<String,List<String>> orderPartnerDB;
+    HashMap<String,String> orderPartnerPair;
 
     public OrderRepository(){
         this.orderDB = new HashMap<>();
         this.partnerDB = new HashMap<>();
         this.orderPartnerDB = new HashMap<>();
+        this.orderPartnerPair = new HashMap<>();
     }
 
     public void addOrder(Order order){
@@ -34,6 +36,7 @@ public class OrderRepository {
                 orders = orderPartnerDB.get(partnerId);
             orders.add(orderId);
             orderPartnerDB.put(partnerId,orders);
+            orderPartnerPair.put(orderId,partnerId);
             DeliveryPartner partner = partnerDB.get(partnerId);
             partner.setNumberOfOrders(orders.size());
         }
@@ -51,7 +54,10 @@ public class OrderRepository {
 
     public Integer getOrderCountByPartnerId(String partnerId){
         //orderCount should denote the orders given by a partner-id
-        return partnerDB.get(partnerId).getNumberOfOrders();
+        Integer countOfOrder = 0 ;
+        if(orderPartnerDB.containsKey(partnerId))
+            countOfOrder = orderPartnerDB.get(partnerId).size();
+        return countOfOrder;
     }
 
     public List<String> getOrdersByPartnerId(String partnerId){
@@ -68,11 +74,8 @@ public class OrderRepository {
     }
 
     public Integer getCountOfUnassignedOrders(){
-        Integer countOfOrders = 0;
+        Integer countOfOrders = orderPartnerPair.size();
         //Count of orders that have not been assigned to any DeliveryPartner
-        for(String partnerId:orderPartnerDB.keySet()){
-            countOfOrders += orderPartnerDB.get(partnerId).size();
-        }
         return orderDB.size() - countOfOrders;
     }
 
@@ -113,8 +116,13 @@ public class OrderRepository {
     public void deletePartnerById(String partnerId){
         //Delete the partnerId
         //And push all his assigned orders to unassigned orders.
-        if(orderPartnerDB.containsKey(partnerId))
+        if(orderPartnerDB.containsKey(partnerId)){
+            for(String orderId:orderPartnerDB.get(partnerId)){
+                if(orderPartnerPair.containsKey(orderId))
+                    orderPartnerPair.remove(orderId);
+            }
             orderPartnerDB.remove(partnerId);
+        }
         if(partnerDB.containsKey(partnerId))
             partnerDB.remove(partnerId);
     }
@@ -122,16 +130,14 @@ public class OrderRepository {
     public void deleteOrderById(String orderId){
         //Delete an order and also
         // remove it from the assigned order of that partnerId
-        for(String partnerId: orderPartnerDB.keySet()){
-            for(String order: orderPartnerDB.get(partnerId)){
-                if(order.equals(orderId)){
-                    orderPartnerDB.get(partnerId).remove(orderId);
-                    DeliveryPartner partner = partnerDB.get(partnerId);
-                    partner.setNumberOfOrders(orderPartnerDB.get(partnerId).size());
-                }
-            }
-        }
+        String partnerId = orderPartnerPair.get(orderId);
+        List<String> orders = orderPartnerDB.get(partnerId);
+        orders.remove(orderId);
+        orderPartnerDB.put(partnerId,orders);
+        orderPartnerPair.remove(orderId);
 
+        DeliveryPartner partner = partnerDB.get(partnerId);
+        partner.setNumberOfOrders(orders.size());
         if(orderDB.containsKey(orderId))
             orderDB.remove(orderId);
     }
